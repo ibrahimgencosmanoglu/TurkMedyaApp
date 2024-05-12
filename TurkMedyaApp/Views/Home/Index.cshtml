@@ -1,0 +1,107 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Index";
+
+
+    // //var queryString = Request.QueryString;
+    // foreach (var key in queryString.AllKeys)
+    // {
+    //     currentRouteValues.Add(key, queryString[key]);
+    // }
+
+    RouteValueDictionary GetCurrentRouteValues(int pageNumber, string filterText, string categoryId)
+    {
+        var currentRouteValues = new RouteValueDictionary(Url.ActionContext.RouteData.Values);
+        if (pageNumber > 1)
+        { 
+            currentRouteValues.Add("page", pageNumber); 
+        }
+        if (!string.IsNullOrEmpty(filterText))
+        {
+            currentRouteValues.Add("filterText", filterText); 
+        }
+        else
+        {
+            currentRouteValues.Remove("");
+        }
+        if(!string.IsNullOrEmpty(categoryId))
+        {    
+            currentRouteValues.Add("categoryId", categoryId);
+        }
+        else
+        {
+            currentRouteValues.Remove("categoryId");
+        }
+        return currentRouteValues;
+    }
+}
+@model List<TurkMedyaApp.Models.HomePage.ItemModel>
+
+<!-- form submit edildiginde girilen Kelime ve secilen kategoriye gore filtreleme gerceklesiyor -->
+<form class="form-inline my-2 my-lg-0 ml-auto" method="get" asp-action="Index">
+    <input class="form-control mr-sm-2" type="Filter" placeholder="Filter..." name="filterText">
+    <select id="categoryId" name="categoryId">
+        @foreach (CategoryModel category in ViewBag.DropdownCategories)
+        {
+            <option value="@category.categoryId">@category.title</option>
+        }
+    </select>
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
+</form>
+<!-- Haberler cogaltiliyor-->
+<div>
+    @foreach (var item in Model)
+    {
+        <div>
+            <a href="detay"> <!-- Habere Tiklandiginda detay Controlleri cagiriliyor-->
+                <div>
+                    <div>
+                        <img src="@item.imageUrl" />
+                    </div>
+                    <div>
+                        <h3>
+                            @item.title
+                        </h3>
+                        <h4>
+                            @item.shortText
+                        </h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+<div> <!-- Sayfalandirma Belirleniyor. Eger Yeterli miktarda veri varsa gosteriliyor -->
+    @if (Model.Any())
+    {
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                @if (ViewBag.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="@Url.RouteUrl(GetCurrentRouteValues(ViewBag.PageNumber-1,ViewBag.filterText,ViewBag.categoryId))">
+                            Previous
+                        </a>
+                    </li>
+                    @* <li class="page-item"><a class="page-link" href="?page=@(ViewBag.PageNumber - 1)&categoryId=@ViewBag.category&filterText=@ViewBag.filterText">Previous</a></li> *@
+                }
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(ViewBag.PageNumber == i ? "active" : "")"><a class="page-link" href="@Url.RouteUrl(GetCurrentRouteValues(@i,ViewBag.filterText,ViewBag.categoryId)) ">@i</a></li>
+                    
+                }
+                @if (ViewBag.PageNumber < ViewBag.TotalPages)
+                {
+                    @* <li class="page-item"><a class="page-link" href=" ?page=@(ViewBag.PageNumber + 1)&categoryId=@ViewBag.category&filterText=@ViewBag.filterText">Next</a></li> *@
+                    <li class="page-item">
+                        <a class="page-link" 
+                            href="@Url.RouteUrl(GetCurrentRouteValues(ViewBag.PageNumber+1,ViewBag.filterText,ViewBag.categoryId))">Next
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+

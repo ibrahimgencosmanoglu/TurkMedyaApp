@@ -1,0 +1,14 @@
+﻿
+@model TurkMedyaApp.Models.Detail.DetailDataModel
+<!-- Detay Modeli basiliyor relatedNews varsa onu giriyor.-->
+<h1>@Model.newsDetail.title</h1>
+<img src="@Model.newsDetail.imageUrl"/>
+<p>@Model.newsDetail.bodyText</p>
+<div>
+    @if (Model.relatedNews != null)
+    {
+        <img src="@Model.relatedNews.imageUrl"/>
+        <h3>@Model.relatedNews.title</h3>
+        <h4>@Model.relatedNews.shortText</h4>
+    }
+</div>
